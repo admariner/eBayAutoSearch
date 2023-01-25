@@ -38,8 +38,7 @@ def exit_handler(signal_received, frame):
 
 def sql_connection(file_name):
     try:
-        conbd = sqlite3.connect(file_name)
-        return conbd
+        return sqlite3.connect(file_name)
     except Error:
         print(Error)
 
@@ -57,7 +56,7 @@ def scraper(url, apikey, chatid, sleep):
                 r = requests.get(url)
             except requests.exceptions.ConnectionError:
                 print("Connection Error: Please check your internet connection")
-                print("Retrying in " + sleep + " seconds (" + str(i) + "/" + str(MAX_RETRIES) + ")")
+                print(f"Retrying in {sleep} seconds ({str(i)}/{str(MAX_RETRIES)})")
                 time.sleep(int(sleep))
                 continue
             else:
@@ -94,15 +93,22 @@ def scraper(url, apikey, chatid, sleep):
                                  (prodstr[0], datetime.datetime.now()))
 
                 # Print the listing url based on the identifier
-                print("https://" + urlparse(url).netloc + "/itm/" + prodstr[0])
+                print(f"https://{urlparse(url).netloc}/itm/{prodstr[0]}")
                 print(prodstr[1])
 
                 # If the user specified a telegram bot apikey + chatid, it will send the previously printed list as a text message (only if the previous line didn't produce an exception)
                 if apikey != "" and chatid != "":
                     try:
-                        telebot.TeleBot(apikey, threaded=False).send_message(chatid,
-                                                             "https://" + urlparse(url).netloc + "/itm/" + prodstr[
-                                                                 0] + "\n" + prodstr[1])
+                        telebot.TeleBot(apikey, threaded=False).send_message(
+                            chatid,
+                            (
+                                (
+                                    f"https://{urlparse(url).netloc}/itm/{prodstr[0]}"
+                                    + "\n"
+                                )
+                                + prodstr[1]
+                            ),
+                        )
                         # Telegram API limits the number of messages per second so we need to wait a little bit
                         time.sleep(0.5)
                     except telebot.apihelper.ApiTelegramException:
@@ -162,7 +168,7 @@ if __name__ == '__main__':
             startup(filename)
         except Exception as e:
             print(e)
-            print("Restarting the application in " + str(RESTART_TIME) + " seconds")
+            print(f"Restarting the application in {str(RESTART_TIME)} seconds")
             time.sleep(RESTART_TIME)
             try:
                 con.close()

@@ -19,7 +19,6 @@ class GUI:
             json.dump(data, config_file)
         config_file.close()
         self.window.destroy()
-        pass
 
     def __init__(self, file_name):
         self.file_name = file_name
